@@ -21,6 +21,15 @@ model User {
 
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
+
+    videos        Video[]
+    playlists     Playlist[]
+    profile       Profile?
+    watchHistory  WatchHistory[]
+    subscriptions Subscription[] @relation(name: "UserSubscriptions")
+    channels      Subscription[] @relation(name: "ChannelSubscriptions")
+
+    @@index([email])
 }
 
 model Account {
@@ -60,4 +69,171 @@ model VerificationToken {
     expires    DateTime
 
     @@id([identifier, token])
+}
+
+model Profile {
+    id          String               @id @default(uuid())
+    owner       User                 @relation(fields: [ownerEmail], references: [email])
+    ownerEmail  String               @unique
+    firstName   String
+    lastName    String?
+    gender      GENDER?
+    age         Int?
+    bio         Json?
+    location    String?
+    website     String[]
+    avatar      String?
+    socialMedia SocialMediaAccounts?
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
+
+model SocialMediaAccounts {
+    facebook String?
+    twitter  String?
+    linkedIn String?
+    github   String?
+    owner    Profile? @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+    ownerId  String
+
+    @@id([ownerId])
+}
+
+model Video {
+    id            String            @id @default(uuid())
+    title         String
+    slug          String            @unique
+    description   String?
+    url           String
+    thumbnailUrl  String
+    published     Boolean           @default(false)
+    views         Int               @default(0)
+    duration      Int               @default(0)
+    createdAt     DateTime          @default(now())
+    updatedAt     DateTime          @updatedAt
+    ownerId       String
+    owner         User              @relation(fields: [ownerId], references: [id])
+    tags          TagOnVideo[]
+    likes         VideoLike[]
+    comments      VideoComment[]
+    playlistItems PlaylistItem[]
+    category      CategoryOnVideo[]
+    WatchHistory  WatchHistory[]
+
+    @@index([slug, ownerId])
+}
+
+model Tag {
+    id         Int          @id @default(autoincrement())
+    name       String       @unique
+    tagOnVideo TagOnVideo[]
+}
+
+model TagOnVideo {
+    video   Video  @relation(fields: [videoId], references: [id])
+    videoId String
+    tag     Tag    @relation(fields: [tagId], references: [id])
+    tagId   Int
+
+    @@id([videoId, tagId])
+}
+
+model Category {
+    id              Int               @id @default(autoincrement())
+    name            String            @unique
+    categoryOnVideo CategoryOnVideo[]
+}
+
+model CategoryOnVideo {
+    video      Video    @relation(fields: [videoId], references: [id], onUpdate: Cascade)
+    videoId    String
+    category   Category @relation(fields: [categoryId], references: [id])
+    categoryId Int
+    assignedAt DateTime @default(now())
+    assignedBy String
+
+    @@id([videoId, categoryId])
+}
+
+model VideoLike {
+    id        String   @default(uuid())
+    ownerId   String
+    videoId   String
+    createdAt DateTime @default(now())
+    video     Video    @relation(fields: [videoId], references: [id], onDelete: Cascade)
+
+    @@unique([ownerId, videoId])
+}
+
+model VideoComment {
+    id              String         @id @default(uuid())
+    text            String
+    ownerId         String
+    videoId         String
+    createdAt       DateTime       @default(now())
+    video           Video          @relation(fields: [videoId], references: [id], onDelete: Cascade)
+    parentComment   VideoComment?  @relation("CommentReplies", fields: [parentCommentId], references: [id], onDelete: Cascade)
+    parentCommentId String?
+    replies         VideoComment[] @relation("CommentReplies")
+
+    @@index([videoId])
+}
+
+model Playlist {
+    id          String         @id @default(uuid())
+    title       String
+    description String?
+    ownerId     String
+    owner       User           @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+    videos      PlaylistItem[]
+    createdAt   DateTime       @default(now())
+    updatedAt   DateTime       @updatedAt
+}
+
+model PlaylistItem {
+    id         String   @id @default(uuid())
+    ownerId    String
+    videoId    String
+    playlistId String
+    video      Video    @relation(fields: [videoId], references: [id])
+    playlist   Playlist @relation(fields: [playlistId], references: [id])
+}
+
+model WatchHistory {
+    id        String   @id @default(uuid())
+    owner     User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+    ownerId   String
+    video     Video    @relation(fields: [videoId], references: [id], onDelete: Cascade)
+    videoId   String
+    duration  Int?
+    device    DEVICE
+    completed Boolean  @default(false)
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    @@unique([ownerId, videoId])
+}
+
+model Subscription {
+    id        String   @id @default(uuid())
+    user      User     @relation("UserSubscriptions", fields: [userId], references: [id])
+    userId    String
+    channel   User     @relation("ChannelSubscriptions", fields: [channelId], references: [id], onDelete: Cascade)
+    channelId String
+    createdAt DateTime @default(now())
+
+    @@unique([userId, channelId])
+}
+
+enum GENDER {
+    MALE
+    FEMALE
+    NOT_SPECIFIED
+}
+
+enum DEVICE {
+    DESKTOP
+    MOBILE
+    TABLET
 }
