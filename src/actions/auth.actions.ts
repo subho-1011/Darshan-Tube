@@ -6,11 +6,20 @@ import { DEFAULT_LOGIN_REDIRECT } from "@/routes";
 
 import { signIn, signOut } from "@/auth";
 import { AuthError } from "next-auth";
+import { authRateLimiter } from "@/utils/auth-rate-limiter";
 
 export const loginUser = async (
     data: z.infer<typeof LoginFormSchema>,
     callbackUrl?: string | undefined | null
 ) => {
+    const rateLimitResult = await authRateLimiter(data.email);
+
+    if (!rateLimitResult.success) {
+        return {
+            error: "Too many login attempts. Please try again after some times.",
+        };
+    }
+
     const validateData = LoginFormSchema.safeParse(data);
 
     if (!validateData.success) {
@@ -23,6 +32,7 @@ export const loginUser = async (
         await signIn("credentials", {
             email,
             password,
+            redirect: true,
             redirectTo: callbackUrl || DEFAULT_LOGIN_REDIRECT,
         });
 

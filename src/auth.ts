@@ -31,7 +31,6 @@ export const {
             return session;
         },
         async jwt({ token }) {
-            console.log(token);
             if (!token.sub) return token;
 
             const existingUser = await prismaDB.user.findFirst({
