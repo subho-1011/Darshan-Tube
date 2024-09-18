@@ -11,16 +11,16 @@ import {
 import { User, Settings, LogOut, BellIcon, LogInIcon } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import ThemeSubMenu from "@/components/theme/theme-submenu";
-import { signOut, useSession } from "next-auth/react";
+import { signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { useCurrentUser } from "@/hooks";
 
 const UserButton: React.FC = () => {
     const router = useRouter();
 
     const [haveNotifications, setHaveNotifications] = useState(false);
 
-    const { data } = useSession();
-    const user = data?.user;
+    const user = useCurrentUser();
 
     const handleLogin = () => {
         router.push("/auth/login");
