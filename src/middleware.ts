@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 
 import authConfig from "@/auth.config";
 import {
+    apiAuthPrefix,
     apiPrefix,
     authRoutes,
     DEFAULT_LOGIN_REDIRECT,
@@ -41,15 +42,14 @@ export default auth((req) => {
 
     if (
         nextUrl.pathname.startsWith(apiPrefix) &&
-        publicApiRoutes.includes(nextUrl.pathname)
+        !nextUrl.pathname.startsWith(apiAuthPrefix) &&
+        !publicApiRoutes.includes(nextUrl.pathname)
     ) {
-        const user = !!req.auth?.user;
-        if (!user) {
-            return NextResponse.json(
-                { error: "User not authenticated" },
-                { status: 401 }
-            );
-        }
+        console.log("Call api private routes");
+        return NextResponse.json(
+            { error: "User not authenticated" },
+            { status: 401 }
+        );
     }
     return NextResponse.next();
 });

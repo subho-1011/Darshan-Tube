@@ -6,3 +6,4 @@ export * from "./login-button";
 export * from "./login-form";
 export * from "./logout-button";
 export * from "./register-form";
+export * from "./auth-protect-layout";

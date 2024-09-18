@@ -4,9 +4,10 @@ import { z } from "zod";
 import { LoginFormSchema } from "@/schemas";
 import { DEFAULT_LOGIN_REDIRECT } from "@/routes";
 
-import { signIn, signOut } from "@/auth";
+import { auth, signIn, signOut } from "@/auth";
 import { AuthError } from "next-auth";
 import { authRateLimiter } from "@/utils/auth-rate-limiter";
+import { prismaDB } from "@/db/prisma";
 
 export const loginUser = async (
     data: z.infer<typeof LoginFormSchema>,
@@ -29,6 +30,14 @@ export const loginUser = async (
     const { email, password } = validateData.data;
 
     try {
+        const validUser = await prismaDB.user.findUnique({
+            where: { email },
+        });
+
+        if (validUser === null) {
+            return { error: "User not found" };
+        }
+
         await signIn("credentials", {
             email,
             password,
