@@ -14,7 +14,6 @@ import { PenSquareIcon, PlaySquareIcon, UploadIcon } from "lucide-react";
 
 import { AuthProtectLayout } from "@/components/auth";
 import { useAppSelector } from "@/lib/utils";
-import { useSession } from "next-auth/react";
 
 const HeaderUploadButton: React.FC = () => {
     const router = useRouter();

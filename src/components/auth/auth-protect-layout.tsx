@@ -10,10 +10,10 @@ export const AuthProtectLayout = forwardRef<
 >(({ children }, ref) => {
     const router = useRouter();
 
-    const { isAuthenticated, loading } = useAppSelector((state) => state.user);
+    const { status } = useAppSelector((state) => state.user);
 
     const handleClick = () => {
-        if (!loading && !isAuthenticated) {
+        if (status === "unauthenticated") {
             router.push("/auth/login");
         }
     };

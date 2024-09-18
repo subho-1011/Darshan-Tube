@@ -52,6 +52,8 @@ const userSlice = createSlice({
         },
 
         setUser: (state, action: PayloadAction<User>) => {
+            state.loading = false;
+            state.status = "authenticated";
             state.user = action.payload;
         },
 
@@ -82,6 +84,7 @@ const userSlice = createSlice({
         });
         builder.addCase(fetchUser.rejected, (state, action) => {
             state.loading = false;
+            state.status = "unauthenticated";
             state.error = action.error.message || "Failed to fetch user";
         });
     },
