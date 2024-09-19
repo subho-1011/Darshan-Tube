@@ -19,9 +19,9 @@ export default auth((req) => {
     const isLoggedIn = !!req.auth;
 
     const isAuthRoute = authRoutes.includes(nextUrl.pathname);
-    const isPrivateRoute =
-        privateRoutes.includes(nextUrl.pathname) ||
-        nextUrl.pathname.startsWith("/profile");
+    const isPrivateRoute = privateRoutes.some((prefix) =>
+        nextUrl.pathname.startsWith(prefix)
+    );
 
     if (isAuthRoute && isLoggedIn) {
         return NextResponse.redirect(new URL(DEFAULT_LOGIN_REDIRECT, nextUrl));
@@ -45,7 +45,6 @@ export default auth((req) => {
         !nextUrl.pathname.startsWith(apiAuthPrefix) &&
         !publicApiRoutes.includes(nextUrl.pathname)
     ) {
-        console.log("Call api private routes");
         return NextResponse.json(
             { error: "User not authenticated" },
             { status: 401 }

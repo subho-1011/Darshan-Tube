@@ -4,7 +4,7 @@ import { z } from "zod";
 import { LoginFormSchema } from "@/schemas";
 import { DEFAULT_LOGIN_REDIRECT } from "@/routes";
 
-import { auth, signIn, signOut } from "@/auth";
+import { signIn, signOut } from "@/auth";
 import { AuthError } from "next-auth";
 import { authRateLimiter } from "@/utils/auth-rate-limiter";
 import { prismaDB } from "@/db/prisma";
@@ -41,7 +41,6 @@ export const loginUser = async (
         await signIn("credentials", {
             email,
             password,
-            redirect: true,
             redirectTo: callbackUrl || DEFAULT_LOGIN_REDIRECT,
         });
 
@@ -56,7 +55,7 @@ export const loginUser = async (
             }
         }
 
-        // throw err;
+        throw err;
     }
 };
 
