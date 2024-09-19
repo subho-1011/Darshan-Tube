@@ -122,7 +122,7 @@ export async function POST(request: NextRequest) {
         const parsedTags = JSON.parse(tags);
         const tagIds = await Promise.all(
             parsedTags &&
-                parsedTags.map(async (tag) => {
+                parsedTags.map(async (tag: string) => {
                     const tagRecord = await prismaDB.tag.upsert({
                         where: { name: tag },
                         create: { name: tag },

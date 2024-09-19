@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import Image from "next/image";
 
 export const DarshanLogo = ({ className }: { className?: string }) => {
     const router = useRouter();
@@ -13,9 +14,11 @@ export const DarshanLogo = ({ className }: { className?: string }) => {
             asChild
             onClick={() => router.push("/")}
         >
-            <img
+            <Image
                 src="/darshan-logo.png"
                 alt="darshan-logo"
+                width={100}
+                height={60}
                 className={cn("h-6 w-auto", className)}
             />
         </Button>
