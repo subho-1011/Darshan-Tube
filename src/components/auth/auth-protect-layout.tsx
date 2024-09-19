@@ -1,26 +1,27 @@
 "use client";
 
 import { useAppSelector } from "@/lib/utils";
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import React, { forwardRef, ReactNode } from "react";
 
-export const AuthProtectLayout = forwardRef<
-    HTMLSpanElement,
-    { children: ReactNode }
->(({ children }, ref) => {
-    const router = useRouter();
+interface AuthProtectLayoutProps {
+    children: ReactNode;
+}
 
-    const { status } = useAppSelector((state) => state.user);
+const AuthProtectLayoutComponent = forwardRef<HTMLSpanElement, AuthProtectLayoutProps>(
+    function AuthProtectLayout({ children }, ref) {
+        const router = useRouter();
+        const { status } = useAppSelector((state) => state.user);
 
-    const handleClick = () => {
-        if (status === "unauthenticated") {
-            router.push("/auth/login");
-        }
-    };
+        useEffect(() => {
+            if (status === "unauthenticated") {
+                router.push("/auth/login");
+            }
+        }, [status, router]);
 
-    return (
-        <span ref={ref} onClick={handleClick}>
-            {children}
-        </span>
-    );
-});
+        return <span ref={ref}>{children}</span>;
+    }
+);
+
+export const AuthProtectLayout = AuthProtectLayoutComponent;

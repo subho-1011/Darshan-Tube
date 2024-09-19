@@ -11,6 +11,7 @@ import { RegisterFormSchema } from "@/schemas";
 
 import { useMutation } from "@tanstack/react-query";
 import { registerUser } from "@/api/auth.api";
+import { AxiosError } from "axios";
 
 export const useUserRegterForm = () => {
     const router = useRouter();
@@ -37,8 +38,7 @@ export const useUserRegterForm = () => {
         isSuccess,
         error: apiError,
     } = useMutation({
-        mutationFn: (data: z.infer<typeof RegisterFormSchema>) =>
-            registerUser(data),
+        mutationFn: (data: z.infer<typeof RegisterFormSchema>) => registerUser(data),
         onSuccess: () => {
             setSuccess("Registration successful!");
             form.reset();
@@ -46,9 +46,10 @@ export const useUserRegterForm = () => {
                 router.push("/auth/login");
             }, 1000);
         },
-        onError: (err: any) => {
+        onError: (err: unknown) => {
             console.log(err);
-            setError(err?.response?.data?.error || "Registration failed.");
+            if (err instanceof AxiosError)
+                setError(err?.response?.data?.error || "Registration failed.");
         },
     });
 

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useEffect, useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import { Provider } from "react-redux";
 
 import { fetchUser, initialUser } from "@/store/slices/user-slice";

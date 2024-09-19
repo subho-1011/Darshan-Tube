@@ -1,3 +1,16 @@
 {
-  "extends": ["next/core-web-vitals", "next/typescript"]
+    "extends": ["next/core-web-vitals", "next/typescript"],
+    "rules": {
+        "@typescript-eslint/no-explicit-any": "warn", // Change to "error" to enforce strictness
+        "@typescript-eslint/explicit-module-boundary-types": "off", // Disable if you don't want to enforce return types
+        "@typescript-eslint/no-unused-vars": "warn"
+    }
 }
+
+// {
+//     "extends": "next",
+//     "rules": {
+//         "react/no-unescaped-entities": "off",
+//         "@next/next/no-page-custom-font": "off"
+//     }
+// }
