@@ -12,7 +12,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { PenSquareIcon, PlaySquareIcon, UploadIcon } from "lucide-react";
 
-import { AuthProtectLayout } from "@/components/auth";
 import { useAppSelector } from "@/lib/utils";
 
 const HeaderUploadButton: React.FC = () => {
@@ -34,20 +33,16 @@ const HeaderUploadButton: React.FC = () => {
                 </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
-                <AuthProtectLayout>
-                    <DropdownMenuItem
-                        onClick={() => router.push(`/channel/${userId}/upload`)}
-                    >
-                        <PlaySquareIcon className="h-4 w-4 mr-2" />
-                        Upload video
-                    </DropdownMenuItem>
-                </AuthProtectLayout>
-                <AuthProtectLayout>
-                    <DropdownMenuItem onClick={() => router.push("/community")}>
-                        <PenSquareIcon className="h-4 w-4 mr-2" />
-                        Create post
-                    </DropdownMenuItem>
-                </AuthProtectLayout>
+                <DropdownMenuItem
+                    onClick={() => router.push(`/channel/${userId}/upload`)}
+                >
+                    <PlaySquareIcon className="h-4 w-4 mr-2" />
+                    Upload video
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => router.push("/community")}>
+                    <PenSquareIcon className="h-4 w-4 mr-2" />
+                    Create post
+                </DropdownMenuItem>
             </DropdownMenuContent>
         </DropdownMenu>
     );

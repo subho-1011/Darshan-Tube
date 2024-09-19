@@ -101,24 +101,25 @@ model SocialMediaAccounts {
 }
 
 model Video {
-    id            String            @id @default(uuid())
+    id            String         @id @default(uuid())
     title         String
-    slug          String            @unique
+    slug          String         @unique
     description   String?
-    url           String
+    videoUrl      String
     thumbnailUrl  String
-    published     Boolean           @default(false)
-    views         Int               @default(0)
-    duration      Int               @default(0)
-    createdAt     DateTime          @default(now())
-    updatedAt     DateTime          @updatedAt
+    published     Boolean        @default(false)
+    views         Int            @default(0)
+    duration      Int            @default(0)
+    createdAt     DateTime       @default(now())
+    updatedAt     DateTime       @updatedAt
     ownerId       String
-    owner         User              @relation(fields: [ownerId], references: [id])
+    owner         User           @relation(fields: [ownerId], references: [id])
     tags          TagOnVideo[]
     likes         VideoLike[]
     comments      VideoComment[]
     playlistItems PlaylistItem[]
-    category      CategoryOnVideo[]
+    category      Category      @relation(fields: [categoryId], references: [id])
+    categoryId    Int
     WatchHistory  WatchHistory[]
 
     @@index([slug, ownerId])
@@ -140,21 +141,21 @@ model TagOnVideo {
 }
 
 model Category {
-    id              Int               @id @default(autoincrement())
-    name            String            @unique
-    categoryOnVideo CategoryOnVideo[]
+    id    Int     @id @default(autoincrement())
+    name  String  @unique
+    video Video[]
 }
 
-model CategoryOnVideo {
-    video      Video    @relation(fields: [videoId], references: [id], onUpdate: Cascade)
-    videoId    String
-    category   Category @relation(fields: [categoryId], references: [id])
-    categoryId Int
-    assignedAt DateTime @default(now())
-    assignedBy String
+// model CategoryOnVideo {
+//     video      Video    @relation(fields: [videoId], references: [id], onUpdate: Cascade)
+//     videoId    String   @unique
+//     category   Category @relation(fields: [categoryId], references: [id])
+//     categoryId Int
+//     assignedAt DateTime @default(now())
+//     assignedBy String
 
-    @@id([videoId, categoryId])
-}
+//     @@id([videoId, categoryId])
+// }
 
 model VideoLike {
     id        String   @default(uuid())

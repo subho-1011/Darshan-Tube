@@ -6,11 +6,13 @@ import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Bell, Search } from "lucide-react";
-import LoginUserButton from "./login-user-button";
+import UserButton from "./login-user-button";
 import HeaderUploadButton from "./header-upload-button";
 import { DarshanLogo } from "@/components/logo";
+import { useSession } from "next-auth/react";
 
 const Header: React.FC = () => {
+    const session = useSession();
     return (
         <header className="top-0 sticky bg-background/95 backdrop-blur flex items-center justify-between px-4 lg:px-24 md:px-16 sm:px-8 py-3 z-50 border-border/40">
             <div className="flex items-center">
@@ -45,7 +47,7 @@ const Header: React.FC = () => {
                     <Bell className="h-6 w-6" />
                     <span className="sr-only">Notifications</span>
                 </button>
-                <LoginUserButton />
+                <UserButton session={session.data} />
             </div>
         </header>
     );
