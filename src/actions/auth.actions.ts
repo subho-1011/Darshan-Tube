@@ -8,6 +8,7 @@ import { signIn, signOut } from "@/auth";
 import { AuthError } from "next-auth";
 import { authRateLimiter } from "@/utils/auth-rate-limiter";
 import { prismaDB } from "@/db/prisma";
+import { getCurrentUserId } from "@/data/users.data";
 
 export const loginUser = async (
     data: z.infer<typeof LoginFormSchema>,
@@ -56,6 +57,30 @@ export const loginUser = async (
         }
 
         throw err;
+    }
+};
+
+export const getMe = async () => {
+    try {
+        const id = await getCurrentUserId();
+
+        if (!id) return { error: "Failed to fetch user" };
+
+        const user = await prismaDB.user.findUnique({
+            where: { id },
+            select: {
+                id: true,
+                name: true,
+                image: true,
+                username: true,
+            },
+        });
+
+        if (!user) return { error: "Failed to fetch user" };
+
+        return { user };
+    } catch (error: any) {
+        throw error?.message || "Failed to fetch user";
     }
 };
 

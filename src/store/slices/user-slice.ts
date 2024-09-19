@@ -1,16 +1,10 @@
 import axios, { AxiosError } from "axios";
 
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
-
-interface User {
-    id: string;
-    name: string;
-    email: string;
-    image: string;
-}
+import { TBasicUser } from "@/types";
 
 interface UserState {
-    user: User | null;
+    user: TBasicUser | null;
     status: "authenticated" | "loading" | "unauthenticated";
     loading: boolean;
     error: string | null;
@@ -51,13 +45,13 @@ const userSlice = createSlice({
             state.error = null;
         },
 
-        setUser: (state, action: PayloadAction<User>) => {
+        setUser: (state, action: PayloadAction<TBasicUser>) => {
             state.loading = false;
             state.status = "authenticated";
             state.user = action.payload;
         },
 
-        userLogin: (state, action: PayloadAction<User>) => {
+        userLogin: (state, action: PayloadAction<TBasicUser>) => {
             state.user = action.payload;
             state.status = "authenticated";
             state.loading = false;
@@ -65,10 +59,14 @@ const userSlice = createSlice({
 
         setError: (state, action) => {
             state.error = action.payload;
+            state.status = "unauthenticated";
+            state.loading = false;
         },
 
         logout: (state) => {
             state.user = null;
+            state.status = "unauthenticated";
+            state.loading = false;
         },
     },
     extraReducers: (builder) => {

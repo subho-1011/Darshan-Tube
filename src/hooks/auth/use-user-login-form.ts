@@ -42,6 +42,7 @@ export const useUserLoginForm = () => {
                 }
                 if (res?.success) {
                     setSuccess(res.success);
+                    form.reset();
                 }
             });
         });
