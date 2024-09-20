@@ -55,7 +55,7 @@ export const apiPrefix = "/api";
  * A array of routes that start with this prefix are used for API requests
  * @type {string[]}
  */
-export const publicApiRoutes = ["/api/videos", "/api/v1/videos"];
+export const publicApiRoutes = ["/api/videos", "/api/v1/videos", "/api/v1/videos/total-videos"];
 
 /**
  * The default redirect path after logging out

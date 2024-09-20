@@ -22,6 +22,63 @@ async function generateUniqueSlug(title: string) {
     return uniqueSlug;
 }
 
+export async function GET(request: NextRequest) {
+    try {
+        // get page number and limit
+        const { searchParams } = request.nextUrl;
+        const page = parseInt(searchParams.get("page") || "1");
+        const limit = parseInt(searchParams.get("limit") || "12");
+        const sort = searchParams.get("sortBy") || "newest";
+
+        const skip = (page - 1) * limit;
+
+        let orderBy = {};
+        if (sort === "oldest") {
+            orderBy = {
+                createdAt: "asc",
+            };
+        } else if (sort === "mostViews") {
+            orderBy = {
+                views: "desc",
+            };
+        } else if (sort === "mostLikes")
+            orderBy = {
+                likes: {
+                    _count: "desc",
+                },
+            };
+        else if (sort === "newest") {
+            orderBy = {
+                createdAt: "desc",
+            };
+        } else orderBy = { createdAt: "desc" };
+
+        // get videos
+        const videos = await prismaDB.video.findMany({
+            where: { published: true },
+            skip,
+            take: limit,
+            orderBy,
+            include: {
+                owner: {
+                    select: {
+                        name: true,
+                        username: true,
+                        image: true,
+                    },
+                },
+            },
+        });
+
+        return NextResponse.json(
+            { videos, message: "Videos fetched successfully" },
+            { status: 200 }
+        );
+    } catch (error) {
+        return NextResponse.json({ error: "Something went wrong" }, { status: 500 });
+    }
+}
+
 // for new video post
 export async function POST(request: NextRequest) {
     try {

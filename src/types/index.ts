@@ -1,11 +1,11 @@
-import { User } from "@prisma/client";
+import { User, Video } from "@prisma/client";
 
 export type TUser = User;
 
-export type TUserAuth = {
-    user: TUser | null;
-    login: (user: TUser) => void;
-    logout: () => void;
-    error: string | null;
-    setError: (error: string | null) => void;
+export type TBasicUser = Pick<TUser, "id" | "name" | "image" | "username">;
+
+export type TVideo = Video;
+
+export type TVideoWithUser = TVideo & {
+    owner: TBasicUser;
 };
