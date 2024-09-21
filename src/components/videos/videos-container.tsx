@@ -1,11 +1,11 @@
 import React from "react";
 import { cn } from "@/lib/utils";
-import { TVideoWithUser } from "@/types";
+import { TVideo } from "@/types";
 import { VideoThumbnailCard } from "./video-thumbnail-card";
 
 type VideoContainerProps = {
     name: string;
-    videos: TVideoWithUser[];
+    videos: TVideo[];
     className?: string;
 };
 

@@ -4,12 +4,12 @@ import React from "react";
 import Link from "next/link";
 import Image from "next/image";
 
-import { TVideoWithUser } from "@/types";
+import { TVideo } from "@/types";
 import { Card, CardContent } from "@/components/ui/card";
 import { UserAvatar } from "@/components/common";
 
 type VideoThumbnailCardProps = {
-    video: TVideoWithUser;
+    video: TVideo;
 };
 
 export const VideoThumbnailCard: React.FC<VideoThumbnailCardProps> = ({ video }) => {

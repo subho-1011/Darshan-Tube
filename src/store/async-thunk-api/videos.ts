@@ -1,5 +1,5 @@
 import axios from "axios";
-import { TVideoWithUser } from "@/types";
+import { TVideo } from "@/types";
 import { createAsyncThunk } from "@reduxjs/toolkit";
 
 export const fetchVideos = createAsyncThunk(
@@ -12,7 +12,7 @@ export const fetchVideos = createAsyncThunk(
         pageNumber?: number;
         limit?: number;
         sortBy?: string;
-    }): Promise<{ videos: TVideoWithUser[]; message: string }> => {
+    }): Promise<{ videos: TVideo[]; message: string }> => {
         try {
             const { data } = await axios.get(
                 `/api/v1/videos?page=${pageNumber}&limit=${limit}&sortBy=${sortBy}`

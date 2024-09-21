@@ -1,11 +1,11 @@
-import { TVideoWithUser } from "@/types";
+import { TVideo } from "@/types";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { fetchTotalVideos, fetchVideos } from "@/store/async-thunk-api/videos";
 
 type ErrorType = "fetchVideos" | "fetchTotalVideos";
 
 interface PageVideos {
-    videos: TVideoWithUser[];
+    videos: TVideo[];
 }
 
 export interface VideosState {

@@ -4,8 +4,8 @@ export type TUser = User;
 
 export type TBasicUser = Pick<TUser, "id" | "name" | "image" | "username">;
 
-export type TVideo = Video;
-
-export type TVideoWithUser = TVideo & {
+export type TVideo = Video & {
     owner: TBasicUser;
 };
+
+

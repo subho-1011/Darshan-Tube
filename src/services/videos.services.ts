@@ -1,4 +1,4 @@
-import { TVideoWithUser } from "@/types";
+import { TVideo } from "@/types";
 import { Video } from "@prisma/client";
 import axios, { AxiosError } from "axios";
 
@@ -8,7 +8,7 @@ interface NewVideoUploadResponse {
 }
 
 interface FetchVideosResponse {
-    videos: TVideoWithUser[];
+    videos: TVideo[];
     message: string;
 }
 
