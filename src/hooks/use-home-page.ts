@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "@/lib/utils";
-import { fetchTotalVideos, fetchVideos } from "@/store/async-thunk-api/videos";
+import { fetchTotalVideos, fetchVideos } from "@/store/thunk-api/videos";
 import {
     nextPage,
     previousPage,

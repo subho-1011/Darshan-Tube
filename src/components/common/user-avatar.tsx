@@ -8,9 +8,9 @@ import { User2Icon } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 type AvatarProps = {
-    name: string | null;
-    username: string | null;
-    src: string | null;
+    name: string | null | undefined;
+    username: string | null | undefined;
+    src: string | null | undefined;
     size?: number;
     className?: string;
 };
@@ -40,7 +40,7 @@ export const UserAvatar: React.FC<AvatarProps> = ({
             className={cn(`cursor-pointer w-${size / 4} h-${size / 4}`, className)}
             onClick={() => router.push(`/@${username?.toLocaleLowerCase()}`)}
         >
-            <AvatarImage src={src || ""} alt={name || ""} />
+            <AvatarImage src={src || ""} alt={name || "user avatar"} />
             <AvatarFallback>
                 {name?.charAt(0) ? name?.charAt(0).toUpperCase() : <User2Icon />}
             </AvatarFallback>

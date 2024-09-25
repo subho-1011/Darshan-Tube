@@ -1,6 +1,6 @@
 import { TVideo } from "@/types";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { fetchTotalVideos, fetchVideos } from "@/store/async-thunk-api/videos";
+import { fetchTotalVideos, fetchVideos } from "@/store/thunk-api/videos";
 
 type ErrorType = "fetchVideos" | "fetchTotalVideos";
 

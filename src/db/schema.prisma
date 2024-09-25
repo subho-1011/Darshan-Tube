@@ -28,6 +28,7 @@ model User {
     watchHistory  WatchHistory[]
     subscriptions Subscription[] @relation(name: "UserSubscriptions")
     channels      Subscription[] @relation(name: "ChannelSubscriptions")
+    VideoComment  VideoComment[]
 
     @@index([email])
 }
@@ -118,7 +119,7 @@ model Video {
     likes         VideoLike[]
     comments      VideoComment[]
     playlistItems PlaylistItem[]
-    category      Category      @relation(fields: [categoryId], references: [id])
+    category      Category       @relation(fields: [categoryId], references: [id])
     categoryId    Int
     WatchHistory  WatchHistory[]
 
@@ -168,17 +169,29 @@ model VideoLike {
 }
 
 model VideoComment {
-    id              String         @id @default(uuid())
+    id              String             @id @default(uuid())
     text            String
+    owner           User               @relation(fields: [ownerId], references: [id])
     ownerId         String
     videoId         String
-    createdAt       DateTime       @default(now())
-    video           Video          @relation(fields: [videoId], references: [id], onDelete: Cascade)
-    parentComment   VideoComment?  @relation("CommentReplies", fields: [parentCommentId], references: [id], onDelete: Cascade)
+    createdAt       DateTime           @default(now())
+    video           Video              @relation(fields: [videoId], references: [id], onDelete: Cascade)
+    parentComment   VideoComment?      @relation("CommentReplies", fields: [parentCommentId], references: [id], onDelete: Cascade)
     parentCommentId String?
-    replies         VideoComment[] @relation("CommentReplies")
+    replies         VideoComment[]     @relation("CommentReplies")
+    likes           VideoCommentLike[]
 
     @@index([videoId])
+}
+
+model VideoCommentLike {
+    id           String       @default(uuid())
+    ownerId      String
+    commentId    String
+    createdAt    DateTime     @default(now())
+    videoComment VideoComment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+
+    @@unique([ownerId, commentId])
 }
 
 model Playlist {
@@ -202,18 +215,27 @@ model PlaylistItem {
 }
 
 model WatchHistory {
-    id        String   @id @default(uuid())
-    owner     User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+    id        String         @id @default(uuid())
+    owner     User           @relation(fields: [ownerId], references: [id], onDelete: Cascade)
     ownerId   String
-    video     Video    @relation(fields: [videoId], references: [id], onDelete: Cascade)
+    video     Video          @relation(fields: [videoId], references: [id], onDelete: Cascade)
     videoId   String
-    duration  Int?
-    device    DEVICE
-    completed Boolean  @default(false)
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+    createdAt DateTime       @default(now())
+    updatedAt DateTime       @updatedAt
+    session   WatchSession[]
 
     @@unique([ownerId, videoId])
+}
+
+model WatchSession {
+    id             String       @id @default(uuid())
+    watchHistory   WatchHistory @relation(fields: [watchHistoryId], references: [id], onDelete: Cascade)
+    watchHistoryId String
+    watchedAt      DateTime     @default(now())
+    duration       Float        @default(0)
+    timestamp      Float        @default(0)
+    device         DEVICE
+    completed      Boolean      @default(false)
 }
 
 model Subscription {

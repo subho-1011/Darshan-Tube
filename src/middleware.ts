@@ -19,9 +19,7 @@ export default auth((req) => {
     const isLoggedIn = !!req.auth;
 
     const isAuthRoute = authRoutes.includes(nextUrl.pathname);
-    const isPrivateRoute = privateRoutes.some((prefix) =>
-        nextUrl.pathname.startsWith(prefix)
-    );
+    const isPrivateRoute = privateRoutes.some((prefix) => nextUrl.pathname.startsWith(prefix));
 
     if (isAuthRoute && isLoggedIn) {
         return NextResponse.redirect(new URL(DEFAULT_LOGIN_REDIRECT, nextUrl));
@@ -41,14 +39,12 @@ export default auth((req) => {
     }
 
     if (
+        !isLoggedIn &&
         nextUrl.pathname.startsWith(apiPrefix) &&
         !nextUrl.pathname.startsWith(apiAuthPrefix) &&
         !publicApiRoutes.includes(nextUrl.pathname)
     ) {
-        return NextResponse.json(
-            { error: "User not authenticated" },
-            { status: 401 }
-        );
+        return NextResponse.json({ error: "User not authenticated" }, { status: 401 });
     }
     return NextResponse.next();
 });
