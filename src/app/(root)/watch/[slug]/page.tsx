@@ -37,7 +37,7 @@ export default function Component() {
                             likes={video.likes}
                         />
                         <VideoShareButton />
-                        <VideoDownloadButton videoUrl={video.videoUrl} />
+                        <VideoDownloadButton />
                         <VideoMoreButton />
                     </section>
                 </div>
