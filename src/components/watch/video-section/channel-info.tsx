@@ -1,23 +1,26 @@
 import Link from "next/link";
+import { TOwnerWithSubscribers } from "@/types";
 import { UserAvatar } from "@/components/common";
 import SubscribeButton from "../video-actions/subscribed-button";
-import { useAppSelector } from "@/lib/utils";
 
-export const ChannelInfo: React.FC = () => {
-    const { video } = useAppSelector((state) => state.videoPlayer);
-
+export const ChannelInfo: React.FC<{
+    isSubscribed: boolean;
+    owner: TOwnerWithSubscribers;
+}> = ({ isSubscribed, owner }) => {
     return (
         <section id="channel" className="flex items-center gap-4">
             <UserAvatar
-                name={video?.owner.name}
-                username={video?.owner.username}
-                src={video?.owner.image}
+                name={owner.name}
+                username={owner.username}
+                src={owner.image}
             />
-            <Link href={`/@${video?.owner.username}`}>
-                <h2 className="font-semibold">{video?.owner.name}</h2>
-                <p className="text-sm text-gray-500">{video?.owner.subscribers} subscribers</p>
+            <Link href={`/@${owner.username}`}>
+                <h2 className="font-semibold">{owner.name}</h2>
+                <p className="text-sm text-gray-500">
+                    {owner.subscribers} subscribers
+                </p>
             </Link>
-            <SubscribeButton />
+            <SubscribeButton channelId={owner.id} isSubscribed={isSubscribed} />
         </section>
     );
 };

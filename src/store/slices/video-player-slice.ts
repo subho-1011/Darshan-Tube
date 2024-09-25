@@ -80,7 +80,7 @@ const videoPlayerSlice = createSlice({
             })
             .addCase(fetchVideoCommentsThunk.fulfilled, (state, action) => {
                 state.comments.commentsLoading = false;
-                state.comments.comments = action.payload.comments;
+                state.comments.comments = [...action.payload.comments];
                 state.comments.totalComments = action.payload.totalComments;
                 state.comments.commentsError = null;
             })
@@ -98,14 +98,18 @@ const videoPlayerSlice = createSlice({
             })
             .addCase(loadMoreVideoCommentsThunk.fulfilled, (state, action) => {
                 const comments = state.comments.comments || [];
-                state.comments.comments = [...comments, ...action.payload.comments];
+                state.comments.comments = [
+                    ...comments,
+                    ...action.payload.comments,
+                ];
                 state.comments.commentsError = null;
                 state.comments.totalComments = action.payload.totalComments;
                 state.loading.loadMoreVideoComments = false;
             })
             .addCase(loadMoreVideoCommentsThunk.rejected, (state, action) => {
                 state.globalError.loadMoreVideoComments =
-                    action.error.message || "Failed to load more video comments";
+                    action.error.message ||
+                    "Failed to load more video comments";
                 state.loading.loadMoreVideoComments = false;
             });
 
@@ -117,14 +121,18 @@ const videoPlayerSlice = createSlice({
                 if (state.video) {
                     const isLiked = !state.video.isLiked;
                     state.video.isLiked = isLiked;
-                    state.video.likes = isLiked ? state.video.likes + 1 : state.video.likes - 1;
+                    state.video.likes = isLiked
+                        ? state.video.likes + 1
+                        : state.video.likes - 1;
                 }
             })
             .addCase(toggleVideoLike.rejected, (state, action) => {
                 if (state.video) {
                     const isLiked = !state.video.isLiked;
                     state.video.isLiked = isLiked;
-                    state.video.likes = isLiked ? state.video.likes + 1 : state.video.likes - 1;
+                    state.video.likes = isLiked
+                        ? state.video.likes + 1
+                        : state.video.likes - 1;
                 }
 
                 state.globalError.toggleVideoLike =
@@ -137,10 +145,10 @@ const videoPlayerSlice = createSlice({
                 state.globalError.toggleSubscription = null;
 
                 if (state.video && state.video.owner) {
-                    const isSubscribed = !state.video.owner.isSubscribed;
+                    const isSubscribed = !state.video.isSubscribed;
                     const subscribers = state.video.owner.subscribers;
 
-                    state.video.owner.isSubscribed = isSubscribed;
+                    state.video.isSubscribed = isSubscribed;
                     state.video.owner.subscribers = isSubscribed
                         ? subscribers + 1
                         : subscribers - 1;
@@ -148,10 +156,10 @@ const videoPlayerSlice = createSlice({
             })
             .addCase(toggleSubscription.rejected, (state, action) => {
                 if (state.video && state.video.owner) {
-                    const isSubscribed = !state.video.owner.isSubscribed;
+                    const isSubscribed = !state.video.isSubscribed;
                     const subscribers = state.video.owner.subscribers;
 
-                    state.video.owner.isSubscribed = isSubscribed;
+                    state.video.isSubscribed = isSubscribed;
                     state.video.owner.subscribers = isSubscribed
                         ? subscribers + 1
                         : subscribers - 1;

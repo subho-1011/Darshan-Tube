@@ -2,21 +2,21 @@
 
 import React from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { useAppDispatch, useAppSelector } from "@/lib/utils";
+import { useAppDispatch } from "@/lib/utils";
 import { toggleSubscription } from "@/store/thunk-api/subscriptions.thunkapi";
 import { Button } from "@/components/ui/button";
 
-const SubscribeButton: React.FC = ({}) => {
+const SubscribeButton: React.FC<{
+    channelId: string;
+    isSubscribed: boolean;
+}> = ({ channelId, isSubscribed }) => {
     const dispatch = useAppDispatch();
-
-    const owner = useAppSelector((state) => state.videoPlayer.video?.owner);
-    const channelId = owner?.id ?? "";
 
     const handleSubscrition = () => dispatch(toggleSubscription({ channelId }));
 
     return (
         <AnimatePresence mode="wait">
-            {owner?.isSubscribed ? (
+            {isSubscribed ? (
                 <Button onClick={handleSubscrition}>
                     <motion.div
                         initial={{ opacity: 0 }}

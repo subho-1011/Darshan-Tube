@@ -1,10 +1,9 @@
-import { useCallback, useEffect } from "react";
-import { useAppDispatch, useAppSelector } from "@/lib/utils";
-import { fetchVideoCommentsThunk } from "@/store/thunk-api/video-comments.thunkapi";
+"use client";
+
+import { useAppSelector } from "@/lib/utils";
 
 const useVideoCommentsState = () => {
-    const dispatch = useAppDispatch();
-    const { videoSlug: slug, loading } = useAppSelector((state) => state.videoPlayer);
+    const { loading } = useAppSelector((state) => state.videoPlayer);
 
     const isLoadMoreComments = loading["loadMoreVideoComments"];
     const isPostingNewComment = loading["postVideoComment"];
@@ -19,16 +18,6 @@ const useVideoCommentsState = () => {
         commentsLoading: isCommentsLoading,
         commentsError,
     } = useAppSelector((state) => state.videoPlayer.comments);
-
-    const loadCommentsData = useCallback(() => {
-        if (slug) {
-            dispatch(fetchVideoCommentsThunk({ slug, page, limit }));
-        }
-    }, [slug]);
-
-    useEffect(() => {
-        loadCommentsData();
-    }, [loadCommentsData]);
 
     return {
         comments,

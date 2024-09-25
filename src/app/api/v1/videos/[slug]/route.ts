@@ -1,9 +1,10 @@
-import { NextRequest, NextResponse } from "next/server";
 import { prismaDB } from "@/db/prisma";
+import { NextRequest, NextResponse } from "next/server";
 import { getCurrentUserId } from "@/data/users.data";
 
 export async function GET(request: NextRequest, { params }: { params: { slug: string } }) {
     const { slug } = params;
+
     try {
         const responseVideo = await prismaDB.video.findUnique({
             where: { slug },
@@ -14,16 +15,6 @@ export async function GET(request: NextRequest, { params }: { params: { slug: st
                         name: true,
                         username: true,
                         image: true,
-                        subscriptions: {
-                            select: {
-                                userId: true,
-                            },
-                        },
-                    },
-                },
-                likes: {
-                    select: {
-                        ownerId: true,
                     },
                 },
                 tags: {
@@ -43,14 +34,29 @@ export async function GET(request: NextRequest, { params }: { params: { slug: st
         }
 
         const userId = await getCurrentUserId();
+
         const isOwner = responseVideo?.owner.id === userId;
-        const isLiked = responseVideo?.likes.some((like) => like.ownerId === userId);
-        const isSubscribed = responseVideo?.owner.subscriptions.some(
-            (sub) => sub.userId === userId
-        );
-        const likes = responseVideo?.likes.length || 0;
-        const subscribers = responseVideo?.owner.subscriptions.length || 0;
         const tags = responseVideo?.tags.map((tag) => tag.tag.name);
+
+        const likes = await prismaDB.videoLike.count({
+            where: { videoId: responseVideo?.id },
+        });
+
+        const isLiked =
+            userId &&
+            (await prismaDB.videoLike.findUnique({
+                where: { ownerId_videoId: { ownerId: userId, videoId: responseVideo?.id } },
+            }));
+
+        const subscribers = await prismaDB.subscription.count({
+            where: { channelId: responseVideo?.owner.id },
+        });
+
+        const isSubscribed =
+            userId &&
+            (await prismaDB.subscription.findUnique({
+                where: { userId_channelId: { userId, channelId: responseVideo?.owner.id } },
+            }));
 
         const video = {
             ...responseVideo,
@@ -58,18 +64,19 @@ export async function GET(request: NextRequest, { params }: { params: { slug: st
             isLiked,
             likes,
             tags,
+            isSubscribed: !!isSubscribed,
             owner: {
                 id: responseVideo?.owner.id,
                 name: responseVideo?.owner.name,
                 username: responseVideo?.owner.username,
                 image: responseVideo?.owner.image,
-                subscribers,
-                isSubscribed,
+                subscribers: subscribers || 0,
             },
         };
 
         return NextResponse.json({ video, message: "Video fetched successfully" }, { status: 200 });
-    } catch (error) {
+    } catch (error: any) {
+        console.log(error.message);
         return NextResponse.json({ error: "Something went wrong" }, { status: 500 });
     }
 }

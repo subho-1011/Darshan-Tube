@@ -10,13 +10,13 @@ export type TVideo = Video & {
 
 export type TOwnerWithSubscribers = TBasicUser & {
     subscribers: number;
-    isSubscribed: boolean;
 };
 
 export type TVideoWithUser = TVideo & {
     isOwner: boolean;
     likes: number;
     isLiked: boolean;
+    isSubscribed: boolean;
     tags: string[];
     owner: TOwnerWithSubscribers;
 };

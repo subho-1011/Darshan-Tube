@@ -2,19 +2,23 @@
 
 import React from "react";
 import Link from "next/link";
-import { useVideoPlayerState } from "@/hooks/watch";
+import { TVideoWithUser } from "@/types";
 
-export const VideoDescription = () => {
-    const { video } = useVideoPlayerState();
-
+export const VideoDescription: React.FC<{
+    video: TVideoWithUser;
+}> = ({ video }) => {
     return (
-        <section id="description" className="bg-secondary p-4 rounded-xl mb-4 space-y-4">
+        <section
+            id="description"
+            className="bg-secondary p-4 rounded-xl mb-4 space-y-4"
+        >
             <p className="font-semibold mb-2">
-                {video?.views} views • {video?.createdAt.toLocaleString().substring(0, 10)}
+                {video?.views} views •{" "}
+                {video?.createdAt.toLocaleString().substring(0, 10)}
             </p>
             <strong>{video?.title}</strong>
             <p>{video?.description}</p>
-            <p className="flex flex-wrapspace-y-2">
+            <p className="flex flex-wrap gap-2">
                 {video?.tags.map((tag) => (
                     <Link
                         key={tag}
