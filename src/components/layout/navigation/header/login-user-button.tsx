@@ -3,7 +3,7 @@
 import { Session } from "next-auth";
 import React from "react";
 import { signOut } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 import {
     DropdownMenu,
@@ -18,6 +18,18 @@ import { User, Settings, LogOut, BellIcon, LogInIcon, Tv2Icon } from "lucide-rea
 
 const UserButton: React.FC<{ session: Session | null }> = ({ session }) => {
     const router = useRouter();
+    const pathaname = usePathname();
+
+    const handleLogIn = () => {
+        let callbackUrl = pathaname;
+
+        if (callbackUrl) {
+            callbackUrl = callbackUrl.replace("/auth/login", "");
+            router.push(`/auth/login?callbackUrl=${callbackUrl}`);
+        } else {
+            router.push("/auth/login");
+        }
+    };
 
     return (
         <DropdownMenu>
@@ -67,10 +79,7 @@ const UserButton: React.FC<{ session: Session | null }> = ({ session }) => {
                         <span>Log out</span>
                     </DropdownMenuItem>
                 ) : (
-                    <DropdownMenuItem
-                        className="space-x-2"
-                        onClick={() => router.push("/auth/login")}
-                    >
+                    <DropdownMenuItem className="space-x-2" onClick={handleLogIn}>
                         <LogInIcon className="h-4 w-4" />
                         <span>Log in</span>
                     </DropdownMenuItem>
