@@ -42,7 +42,7 @@ export default auth((req) => {
         !isLoggedIn &&
         nextUrl.pathname.startsWith(apiPrefix) &&
         !nextUrl.pathname.startsWith(apiAuthPrefix) &&
-        !publicApiRoutes.includes(nextUrl.pathname)
+        !nextUrl.pathname.startsWith("/api/v1/videos")
     ) {
         return NextResponse.json({ error: "User not authenticated" }, { status: 401 });
     }
