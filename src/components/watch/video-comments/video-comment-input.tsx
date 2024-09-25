@@ -4,11 +4,11 @@ import { Loader2Icon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 
-import { useVideoCommentsActions } from "@/hooks/watch";
+import { useVideoCommentsActions, useVideoCommentsState } from "@/hooks/watch";
 
 const VideoCommentInput = () => {
-    const { commentText, updateCommentText, handlePostNewComment, isPostingNewComment } =
-        useVideoCommentsActions();
+    const { isPostingNewComment } = useVideoCommentsState();
+    const { commentText, updateCommentText, handlePostNewComment } = useVideoCommentsActions();
 
     return (
         <form onSubmit={handlePostNewComment} className="mb-6">
