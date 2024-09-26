@@ -5,6 +5,7 @@ import { PaginationBar } from "@/components/common";
 import ErrorPage from "@/components/common/error-page";
 import SkeletonContainer from "@/components/skeleton/skeleton-container";
 import { SortingSelect } from "../common/sorting-select";
+import { SortType } from "@/types";
 
 interface VideosPageWrapperProps {
     pageTitle: string;
@@ -16,7 +17,7 @@ interface VideosPageWrapperProps {
     goToNextPage: () => void;
     goToPreviousPage: () => void;
     sort: string;
-    selectSortBy: (sortBy: string) => void;
+    selectSortBy: (sortBy: SortType) => void;
     children: ReactNode; // Page-specific content
 }
 

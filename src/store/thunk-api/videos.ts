@@ -1,7 +1,6 @@
 import axios from "axios";
-import { TVideo } from "@/types";
+import { SortType, TVideo } from "@/types";
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import { SortType } from "@/hooks/use-select-sorting";
 
 export const fetchVideos = createAsyncThunk(
     "videos/fetchVideos",

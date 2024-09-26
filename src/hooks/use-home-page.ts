@@ -9,6 +9,7 @@ import {
     resetVideoStore,
     setCurrentPage,
 } from "@/store/slices/videos-slice";
+import { SortType } from "@/types";
 
 export const useHomePage = () => {
     const dispatch = useAppDispatch();
@@ -17,9 +18,9 @@ export const useHomePage = () => {
     );
 
     const [initialRender, setInitialRender] = useState(true);
-    const [sortBy, setSortBy] = useState<string>("");
+    const [sortBy, setSortBy] = useState<SortType>("newest");
 
-    const selectSortBy = (sort: string) => {
+    const selectSortBy = (sort: SortType) => {
         setSortBy(sort);
         dispatch(resetVideoStore());
         setInitialRender(true);
