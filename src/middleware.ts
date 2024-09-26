@@ -42,9 +42,13 @@ export default auth((req) => {
         !isLoggedIn &&
         nextUrl.pathname.startsWith(apiPrefix) &&
         !nextUrl.pathname.startsWith(apiAuthPrefix) &&
-        !nextUrl.pathname.startsWith("/api/v1/videos")
+        !nextUrl.pathname.startsWith("/api/v1/videos") &&
+        !nextUrl.pathname.startsWith("/api/v1/watch-history")
     ) {
-        return NextResponse.json({ error: "User not authenticated" }, { status: 401 });
+        return NextResponse.json(
+            { error: "User not authenticated" },
+            { status: 401 }
+        );
     }
     return NextResponse.next();
 });

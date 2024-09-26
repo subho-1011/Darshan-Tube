@@ -29,21 +29,21 @@ export async function POST(request: NextRequest, { params }: { params: { videoId
         }
 
         // Check if the user is authenticated
-        const userId = await getCurrentUserId();
-        if (!userId) {
-            return NextResponse.json({ message: "User not authenticated" }, { status: 401 });
-        }
+        const ownerId = await getCurrentUserId();
 
-        // Add the video to the user's watch history
-        const existingWatchHistory = await prismaDB.watchHistory.findUnique({
-            where: { ownerId_videoId: { videoId, ownerId: userId } },
-            include: {
-                session: {
-                    orderBy: { watchedAt: "desc" },
-                    take: 1,
+        let existingWatchHistory;
+        if (ownerId) {
+            // Add the video to the user's watch history
+            existingWatchHistory = await prismaDB.watchHistory.findUnique({
+                where: { ownerId_videoId: { videoId, ownerId } },
+                include: {
+                    session: {
+                        orderBy: { watchedAt: "desc" },
+                        take: 1,
+                    },
                 },
-            },
-        });
+            });
+        }
 
         if (existingWatchHistory) {
             const lastSession = existingWatchHistory.session[0];
@@ -51,35 +51,47 @@ export async function POST(request: NextRequest, { params }: { params: { videoId
             // if the last session is not from the same device or it is more than 12 hours ago then update video views
             if (
                 lastSession &&
-                (lastSession.device !== device || !isLessThanTwelveHours(lastSession.watchedAt))
+                (lastSession.device !== device ||
+                    !isLessThanTwelveHours(lastSession.watchedAt))
             ) {
                 await updateVideoViews(videoId);
             }
 
             return NextResponse.json(
-                { watchHistory: existingWatchHistory, message: "Video already in watch history" },
+                {
+                    watchHistory: existingWatchHistory,
+                    message: "Video already in watch history",
+                },
                 { status: 200 }
             );
         }
 
-        // Add the video to the user's watch history
-        const watchHistory = await prismaDB.watchHistory.create({
-            data: {
-                videoId,
-                ownerId: userId,
-                session: {
-                    create: {
-                        device: (device as DEVICE) || "DESKTOP",
-                    },
-                },
-            },
-        });
-
         // Update the video views
         await updateVideoViews(videoId);
 
+        if (ownerId) {
+            // Add the video to the user's watch history
+            const watchHistory = await prismaDB.watchHistory.create({
+                data: {
+                    videoId,
+                    ownerId,
+                    session: {
+                        create: {
+                            device: (device as DEVICE) || "DESKTOP",
+                        },
+                    },
+                },
+            });
+
+            return NextResponse.json(
+                { watchHistory, message: "Video added to watch history" },
+                { status: 200 }
+            );
+        }
+
+        // If the user is not authenticated, return a message
         return NextResponse.json(
-            { watchHistory, message: "Video added to watch history" },
+            { message: "Video views updated without adding to watch history" },
             { status: 200 }
         );
     } catch (error: any) {
