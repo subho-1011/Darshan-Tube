@@ -7,7 +7,6 @@ export const VideoPlayer: React.FC = () => {
     const {
         video,
         videoRef,
-        handleVideoTimeUpdate,
         handleVideoEnded,
         handleVideoPause,
         handleVideoPlay,
@@ -28,7 +27,6 @@ export const VideoPlayer: React.FC = () => {
                 className="w-full h-full rounded-xl"
                 poster={video?.thumbnailUrl}
                 controls
-                onTimeUpdate={handleVideoTimeUpdate}
                 onEnded={handleVideoEnded}
                 onPause={handleVideoPause}
                 onPlay={handleVideoPlay}

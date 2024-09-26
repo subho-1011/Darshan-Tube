@@ -1,147 +1,147 @@
 "use client";
 
-import { useRef, useState } from "react";
-
-import { addToWatchHistory, addToWatchTime } from "@/services/watch-history.services";
-import useVideoPlayerState from "./use-video-player-state";
+import { useCallback, useEffect, useRef } from "react";
 import { useAppSelector } from "@/lib/utils";
+import {
+    addToWatchHistory,
+    addToWatchTime,
+} from "@/services/watch-history.services";
 
 const useVideoPlayer = () => {
     const { video } = useAppSelector((state) => state.videoPlayer);
 
-    const [currentDuration, setCurrentDuration] = useState(0);
-    const [lastUpdateDuration, setLastUpdateDuration] = useState(0);
-
     const intervalRef = useRef<number | null>(null);
     const videoRef = useRef<HTMLVideoElement | null>(null);
+    const lastUpdateDurationRef = useRef<number | null>(null);
+    const hasAddedToWatchHistory = useRef(false);
 
-    const hasAddedToWatchHistory = useRef(false); // Track if watch history was added
-
-    // Handle watch history and update after intervals
-    const handleWatchHistory = async (currentTime: number) => {
-        if (!video?.id) return;
-
-        // Initial start of the video - only add once
-        if (!hasAddedToWatchHistory.current) {
-            hasAddedToWatchHistory.current = true; // Set this to true to ensure it's not called again
-            console.log("Initial start of the video at time:", currentTime);
-
-            try {
-                await addToWatchHistory(video.id);
-                console.log("Watch history added at time:", currentTime);
-            } catch (error) {
-                console.error("Failed to add to watch history", error);
-                // Reset if failed, to retry
-                hasAddedToWatchHistory.current = false;
-            }
-        }
-
-        // Only update if more than 5 seconds have passed since the last update
-        const duration = currentTime - lastUpdateDuration;
-        if (duration >= 10) {
-            setLastUpdateDuration(currentTime);
-            try {
-                await addToWatchTime(video.id, duration, currentTime);
-                console.log("Watch time updated:", duration, "at timestamp:", currentTime);
-            } catch (error) {
-                console.error("Failed to update watch time", error);
-            }
-        }
-    };
-
-    const startInterval = (videoElement: HTMLVideoElement) => {
-        if (intervalRef.current) {
-            clearInterval(intervalRef.current); // Clear any existing interval
-        }
-
-        // Start the interval for updating watch time every second
-        intervalRef.current = window.setInterval(() => {
-            const currentTime = videoElement.currentTime;
-            setCurrentDuration(currentTime);
-            handleWatchHistory(currentTime);
-        }, 1000 * 10);
-    };
-
-    const stopInterval = () => {
+    const stopInterval = useCallback(() => {
         if (intervalRef.current) {
             clearInterval(intervalRef.current);
             intervalRef.current = null;
         }
-        console.log("Interval stopped.");
-    };
+    }, []);
 
-    const handleVideoTimeUpdate = (e: React.SyntheticEvent<HTMLVideoElement, Event>) => {
-        const videoElement = e.currentTarget;
-        setCurrentDuration(videoElement.currentTime);
-    };
+    // upadate last update time
+    const handleWatchHistory = useCallback(
+        async (currentTime: number) => {
+            if (!video?.id) return;
 
-    // Handle when video is paused
-    const handleVideoPause = async (e: React.SyntheticEvent<HTMLVideoElement, Event>) => {
-        if (!video?.id) return;
+            if (!hasAddedToWatchHistory.current) {
+                hasAddedToWatchHistory.current = true;
 
-        const videoElement = e.currentTarget;
-        const pausedAt = videoElement.currentTime;
-        const durationWatched = pausedAt - lastUpdateDuration;
-        setLastUpdateDuration(pausedAt);
+                try {
+                    await addToWatchHistory(video.id);
+                } catch (error) {
+                    hasAddedToWatchHistory.current = false;
+                    console.error(error);
+                }
+            }
+
+            if (!lastUpdateDurationRef.current) {
+                lastUpdateDurationRef.current = currentTime;
+                return;
+            }
+
+            const duration = currentTime - lastUpdateDurationRef.current;
+            if (duration >= 20) {
+                lastUpdateDurationRef.current = currentTime;
+                await addToWatchTime(video.id, duration, currentTime);
+            }
+        },
+        [video?.id]
+    );
+
+    const startInterval = useCallback(
+        (videoElement: HTMLVideoElement) => {
+            if (intervalRef.current) {
+                clearInterval(intervalRef.current);
+            }
+
+            intervalRef.current = window.setInterval(() => {
+                const currentTime = videoElement.currentTime;
+                handleWatchHistory(currentTime);
+            }, 1000);
+        },
+        [handleWatchHistory]
+    );
+
+    const handleVideoPause = useCallback(async () => {
+        const pausedAt = videoRef.current?.currentTime;
+
+        if (!video?.id || !pausedAt) return;
+
+        const durationWatched = pausedAt - (lastUpdateDurationRef.current || 0);
+        lastUpdateDurationRef.current = pausedAt;
         stopInterval();
 
         try {
             await addToWatchTime(video.id, durationWatched, pausedAt);
-            console.log("Video paused at:", pausedAt, "Duration watched:", durationWatched);
         } catch (error) {
-            console.error("Failed to update watch time on pause", error);
+            console.error(error);
         }
-    };
+    }, [video?.id, stopInterval]);
 
     // Handle when video ends
-    const handleVideoEnded = async (e: React.SyntheticEvent<HTMLVideoElement, Event>) => {
-        if (!video?.id) return;
+    const handleVideoEnded = useCallback(async () => {
+        const pausedAt = videoRef.current?.currentTime;
 
-        stopInterval();
-        const pausedAt = e.currentTarget.currentTime;
-        const durationWatched = pausedAt - lastUpdateDuration;
-        setLastUpdateDuration(pausedAt);
+        if (!video?.id || !pausedAt) return;
+
+        const durationWatched = pausedAt - (lastUpdateDurationRef.current || 0);
+        lastUpdateDurationRef.current = pausedAt;
 
         try {
-            await addToWatchTime(video.id, durationWatched, pausedAt, "DESKTOP", true);
-            console.log("Video ended at:", currentDuration);
+            await addToWatchTime(
+                video.id,
+                durationWatched,
+                pausedAt,
+                "DESKTOP",
+                true
+            );
         } catch (error) {
-            console.error("Failed to update watch time on end", error);
+            console.error(error);
         }
+
+        stopInterval();
 
         // Clean up
-        setCurrentDuration(0);
-        setLastUpdateDuration(0);
+        lastUpdateDurationRef.current = null;
         hasAddedToWatchHistory.current = false; // Reset for the next video
-    };
+    }, [video?.id, stopInterval]);
 
-    // Handle when video is played
-    const handleVideoPlay = (e: React.SyntheticEvent<HTMLVideoElement, Event>) => {
-        const videoElement = e.currentTarget;
-        startInterval(videoElement);
+    const handleVideoPlay = useCallback(
+        (e: React.SyntheticEvent<HTMLVideoElement, Event>) => {
+            const videoElement = e.currentTarget;
+            startInterval(videoElement);
 
-        if (!video?.id) return;
+            if (!video?.id) return;
 
-        if (!hasAddedToWatchHistory.current) {
-            hasAddedToWatchHistory.current = true; // Set this to true to ensure it's not called again
-            console.log("Initial start of the video at time:", currentDuration);
-            try {
-                addToWatchHistory(video.id);
-                console.log("Watch history added at time:", currentDuration);
-            } catch (error) {
-                console.error("Failed to add to watch history", error);
-                // Reset if failed, to retry
-                hasAddedToWatchHistory.current = false;
+            if (!hasAddedToWatchHistory.current) {
+                hasAddedToWatchHistory.current = true;
+
+                try {
+                    addToWatchHistory(video.id);
+                } catch (error) {
+                    hasAddedToWatchHistory.current = false;
+                    console.error(error);
+                }
             }
-        }
+        },
+        [video?.id, startInterval]
+    );
 
-        console.log("Video playing.");
-    };
+    useEffect(() => {
+        return () => {
+            stopInterval();
+            videoRef.current = null;
+            lastUpdateDurationRef.current = null;
+        };
+    }, [stopInterval]);
 
     return {
         video,
         videoRef,
-        handleVideoTimeUpdate,
         handleVideoEnded,
         handleVideoPause,
         handleVideoPlay,
