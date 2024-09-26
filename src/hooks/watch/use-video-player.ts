@@ -9,6 +9,7 @@ import {
 
 const useVideoPlayer = () => {
     const { video } = useAppSelector((state) => state.videoPlayer);
+    const { status: userStatus } = useAppSelector((state) => state.user);
 
     const intervalRef = useRef<number | null>(null);
     const videoRef = useRef<HTMLVideoElement | null>(null);
@@ -25,7 +26,7 @@ const useVideoPlayer = () => {
     // upadate last update time
     const handleWatchHistory = useCallback(
         async (currentTime: number) => {
-            if (!video?.id) return;
+            if (!video?.id || userStatus !== "authenticated") return;
 
             if (!hasAddedToWatchHistory.current) {
                 hasAddedToWatchHistory.current = true;
@@ -49,7 +50,7 @@ const useVideoPlayer = () => {
                 await addToWatchTime(video.id, duration, currentTime);
             }
         },
-        [video?.id]
+        [video?.id, userStatus]
     );
 
     const startInterval = useCallback(
@@ -57,6 +58,7 @@ const useVideoPlayer = () => {
             if (intervalRef.current) {
                 clearInterval(intervalRef.current);
             }
+            console.log("Start interval");
 
             intervalRef.current = window.setInterval(() => {
                 const currentTime = videoElement.currentTime;
@@ -69,7 +71,7 @@ const useVideoPlayer = () => {
     const handleVideoPause = useCallback(async () => {
         const pausedAt = videoRef.current?.currentTime;
 
-        if (!video?.id || !pausedAt) return;
+        if (!video?.id || !pausedAt || userStatus !== "authenticated") return;
 
         const durationWatched = pausedAt - (lastUpdateDurationRef.current || 0);
         lastUpdateDurationRef.current = pausedAt;
@@ -80,25 +82,19 @@ const useVideoPlayer = () => {
         } catch (error) {
             console.error(error);
         }
-    }, [video?.id, stopInterval]);
+    }, [video?.id, stopInterval, userStatus]);
 
     // Handle when video ends
     const handleVideoEnded = useCallback(async () => {
         const pausedAt = videoRef.current?.currentTime;
 
-        if (!video?.id || !pausedAt) return;
+        if (!video?.id || !pausedAt || userStatus !== "authenticated") return;
 
         const durationWatched = pausedAt - (lastUpdateDurationRef.current || 0);
         lastUpdateDurationRef.current = pausedAt;
 
         try {
-            await addToWatchTime(
-                video.id,
-                durationWatched,
-                pausedAt,
-                "DESKTOP",
-                true
-            );
+            await addToWatchTime(video.id, durationWatched, pausedAt, "DESKTOP", true);
         } catch (error) {
             console.error(error);
         }
@@ -108,7 +104,7 @@ const useVideoPlayer = () => {
         // Clean up
         lastUpdateDurationRef.current = null;
         hasAddedToWatchHistory.current = false; // Reset for the next video
-    }, [video?.id, stopInterval]);
+    }, [video?.id, stopInterval, userStatus]);
 
     const handleVideoPlay = useCallback(
         (e: React.SyntheticEvent<HTMLVideoElement, Event>) => {
