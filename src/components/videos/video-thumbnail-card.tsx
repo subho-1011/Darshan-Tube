@@ -23,7 +23,7 @@ export const VideoThumbnailCard: React.FC<VideoThumbnailCardProps> = ({ video })
                         alt={video.title}
                         width={360}
                         height={200}
-                        loading="lazy"
+                        priority
                     />
                 </Link>
                 <div className="p-4">
@@ -35,9 +35,15 @@ export const VideoThumbnailCard: React.FC<VideoThumbnailCardProps> = ({ video })
                             size={40}
                         />
                         <div className="space-y-1">
-                            <h3 className="font-semibold line-clamp-2">{video.title}</h3>
-                            <p className="text-sm text-muted-foreground">{video.owner.username}</p>
-                            <p className="text-sm text-muted-foreground">{video.views} views</p>
+                            <h3 className="font-semibold line-clamp-2">
+                                {video.title}
+                            </h3>
+                            <p className="text-sm text-muted-foreground">
+                                {video.owner.username}
+                            </p>
+                            <p className="text-sm text-muted-foreground">
+                                {video.views} views
+                            </p>
                         </div>
                     </div>
                 </div>
