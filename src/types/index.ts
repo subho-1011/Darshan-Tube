@@ -1,3 +1,4 @@
+import { SortByOptions } from "@/constant";
 import { User, Video, VideoComment } from "@prisma/client";
 
 export type TUser = User;
@@ -29,3 +30,5 @@ export type TVideoComment = VideoComment & {
     owner: TBasicUser;
     replies: TVideoComment[];
 };
+
+export type SortType = (typeof SortByOptions)[number]["type"];

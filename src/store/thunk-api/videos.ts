@@ -1,6 +1,7 @@
 import axios from "axios";
 import { TVideo } from "@/types";
 import { createAsyncThunk } from "@reduxjs/toolkit";
+import { SortType } from "@/hooks/use-select-sorting";
 
 export const fetchVideos = createAsyncThunk(
     "videos/fetchVideos",
@@ -11,7 +12,7 @@ export const fetchVideos = createAsyncThunk(
     }: {
         pageNumber?: number;
         limit?: number;
-        sortBy?: string;
+        sortBy?: SortType;
     }): Promise<{ videos: TVideo[]; message: string }> => {
         try {
             const { data } = await axios.get(
