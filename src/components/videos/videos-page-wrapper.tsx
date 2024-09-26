@@ -1,8 +1,10 @@
+"use client";
+
 import { ReactNode } from "react";
 import { PaginationBar } from "@/components/common";
 import ErrorPage from "@/components/common/error-page";
-import { VideoSortingSelect } from "./video-sorting-select";
 import SkeletonContainer from "@/components/skeleton/skeleton-container";
+import { SortingSelect } from "../common/sorting-select";
 
 interface VideosPageWrapperProps {
     pageTitle: string;
@@ -39,7 +41,7 @@ export const VideosPageWrapper: React.FC<VideosPageWrapperProps> = ({
         <div className="py-8 flex flex-col min-h-screen">
             <div className="flex justify-between px-4">
                 <h1 className="text-2xl font-bold mb-6">{pageTitle}</h1>
-                <VideoSortingSelect sort={sort} selectSortBy={selectSortBy} />
+                <SortingSelect sort={sort} selectSortBy={selectSortBy} />
             </div>
 
             {/* Page-specific content */}
