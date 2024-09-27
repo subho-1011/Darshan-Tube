@@ -1,5 +1,3 @@
-"use server";
-
 import { DEFAULT_LIMIT, DEFAULT_PAGE, DEFAULT_SORT_BY } from "@/constant";
 import { SortType } from "@/types";
 import { NextRequest } from "next/server";
