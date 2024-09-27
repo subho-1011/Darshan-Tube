@@ -1,4 +1,4 @@
-import { TVideoComment, TVideoWithUser } from "@/types";
+import { TVideoComment, TVideoWithUser, TWatchHistoryVideoCard } from "@/types";
 
 export interface CommentsState {
     page: number;
@@ -20,5 +20,19 @@ export interface VideoPlayerState {
     };
     loading: {
         [key: string]: boolean;
+    };
+}
+
+export interface watchHistoryState {
+    currentPage: number;
+    limit: number;
+    videos: TWatchHistoryVideoCard[] | null;
+    hasNoMoreVideos: boolean;
+    watchHistoryError: string | null;
+    watchHistoryLoading: boolean;
+    loadMoreLoading: boolean;
+    deleteWatchHistoryLoading: boolean;
+    globalError: {
+        [key: string]: string | null;
     };
 }
