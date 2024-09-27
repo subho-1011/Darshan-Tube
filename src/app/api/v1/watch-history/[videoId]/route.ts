@@ -140,14 +140,6 @@ export async function PATCH(request: NextRequest, { params }: { params: { videoI
             },
         });
 
-        // update video views
-        await prismaDB.video.update({
-            where: { id: videoId },
-            data: {
-                views: { increment: 1 },
-            },
-        });
-
         return createSuccessMessage("Watch history updated :: session started successfully", 200);
     }
 
@@ -165,8 +157,6 @@ export async function PATCH(request: NextRequest, { params }: { params: { videoI
             },
         });
 
-        // update video views
-        await updateVideoViews(videoId);
         return createSuccessMessage("Watch history updated :: session started successfully", 200);
     }
 
@@ -201,8 +191,28 @@ export async function PATCH(request: NextRequest, { params }: { params: { videoI
         },
     });
 
-    // update video views
-    await updateVideoViews(videoId);
-
     return createSuccessMessage("Watch history updated :: session started successfully", 200);
+}
+
+export async function DELETE(request: NextRequest, { params }: { params: { videoId: string } }) {
+    try {
+        const ownerId = await getCurrentUserId();
+        if (!ownerId) return createErrorResponse("User not authenticated :: Watch History", 401);
+
+        const { videoId } = params;
+        if (!videoId) return createErrorResponse("Video id is required :: Watch History", 400);
+
+        const watchHistory = await prismaDB.watchHistory.findUnique({
+            where: { ownerId_videoId: { videoId, ownerId } },
+        });
+
+        if (!watchHistory) return createErrorResponse("Video not found :: Watch History", 404);
+
+        await prismaDB.watchHistory.delete({ where: { id: watchHistory.id } });
+        await prismaDB.watchSession.deleteMany({ where: { watchHistoryId: watchHistory.id } });
+
+        return createSuccessMessage("Watch history deleted successfully", 200);
+    } catch (error) {
+        return createErrorResponse("Failed to delete watch history", 500, error);
+    }
 }

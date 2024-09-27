@@ -17,9 +17,11 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-    title: "DarshanTube",
-    description:
-        "DarshanTube is a video streaming platform that provides streaming functionality",
+    title: {
+        default: "DarshanTube",
+        template: "%s - DarshanTube",
+    },
+    description: "DarshanTube is a video streaming platform that provides streaming functionality",
 };
 
 export default function RootLayout({
