@@ -1,8 +1,8 @@
-export const MAXIMUM_THUMBNAIL_SIZE =
-    1024 * 1024 * parseInt(process.env.MAXIMUM_THUMBNAIL_SIZE!);
+import { SortType } from "@/types";
 
-export const MAXIMUM_VIDEO_SIZE =
-    1024 * 1024 * parseInt(process.env.MAXIMUM_VIDEO_SIZE!);
+export const MAXIMUM_THUMBNAIL_SIZE = 1024 * 1024 * parseInt(process.env.MAXIMUM_THUMBNAIL_SIZE!);
+
+export const MAXIMUM_VIDEO_SIZE = 1024 * 1024 * parseInt(process.env.MAXIMUM_VIDEO_SIZE!);
 
 export const SortByOptions = [
     {
@@ -22,3 +22,7 @@ export const SortByOptions = [
         displayName: "sort by most likes",
     },
 ] as const;
+
+export const DEFAULT_PAGE = "1";
+export const DEFAULT_LIMIT = "12";
+export const DEFAULT_SORT_BY: SortType = "newest";
