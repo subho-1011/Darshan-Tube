@@ -5,9 +5,13 @@ export type TUser = User;
 
 export type TBasicUser = Pick<TUser, "id" | "name" | "image" | "username">;
 
-export type TBasicDataOfVideo = Pick<TVideo, "id" | "title" | "slug" | "thumbnailUrl" | "views">;
+export type TBasicDataOfVideo = Pick<TVideo, "id" | "title" | "slug" | "thumbnailUrl" | "views" | "createdAt">;
 
 export type TVideo = Video & {
+    owner: TBasicUser;
+};
+
+export type TBasicDataOfVideoWithUser = TBasicDataOfVideo & {
     owner: TBasicUser;
 };
 
