@@ -49,4 +49,11 @@ export type TCommunityPost = CommunityPost & {
     owner: TBasicUser;
 };
 
+export type TCommunityPostComment = TCommunityPost & {
+    likes: number;
+    isLiked: boolean;
+    isOwner: boolean;
+    owner: TBasicUser;
+};
+
 export type SortType = (typeof SortByOptions)[number]["type"];

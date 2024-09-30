@@ -22,13 +22,15 @@ model User {
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 
-    videos        Video[]
-    playlists     Playlist[]
-    profile       Profile?
-    watchHistory  WatchHistory[]
-    subscriptions Subscription[] @relation(name: "UserSubscriptions")
-    channels      Subscription[] @relation(name: "ChannelSubscriptions")
-    VideoComment  VideoComment[]
+    videos               Video[]
+    playlists            Playlist[]
+    profile              Profile?
+    watchHistory         WatchHistory[]
+    subscriptions        Subscription[]         @relation(name: "UserSubscriptions")
+    channels             Subscription[]         @relation(name: "ChannelSubscriptions")
+    VideoComment         VideoComment[]
+    communityPost        CommunityPost[]
+    communityPostComment CommunityPostComment[]
 
     @@index([email])
 }
@@ -147,17 +149,6 @@ model Category {
     video Video[]
 }
 
-// model CategoryOnVideo {
-//     video      Video    @relation(fields: [videoId], references: [id], onUpdate: Cascade)
-//     videoId    String   @unique
-//     category   Category @relation(fields: [categoryId], references: [id])
-//     categoryId Int
-//     assignedAt DateTime @default(now())
-//     assignedBy String
-
-//     @@id([videoId, categoryId])
-// }
-
 model VideoLike {
     id        String   @default(uuid())
     ownerId   String
@@ -249,6 +240,54 @@ model Subscription {
     @@unique([userId, channelId])
 }
 
+model CommunityPost {
+    id                   String                 @id @default(uuid())
+    owner                User                   @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+    ownerId              String
+    text                 String
+    images               String[]
+    createdAt            DateTime               @default(now())
+    updatedAt            DateTime               @updatedAt
+    communityPostLike    CommunityPostLike[]
+    communityPostComment CommunityPostComment[]
+}
+
+model CommunityPostLike {
+    id            String        @default(uuid())
+    ownerId       String
+    communityId   String
+    createdAt     DateTime      @default(now())
+    communityPost CommunityPost @relation(fields: [communityId], references: [id], onDelete: Cascade)
+
+    @@unique([ownerId, communityId])
+}
+
+model CommunityPostComment {
+    id              String                 @id @default(uuid())
+    text            String
+    owner           User                   @relation(fields: [ownerId], references: [id])
+    ownerId         String
+    communityId     String
+    createdAt       DateTime               @default(now())
+    communityPost   CommunityPost          @relation(fields: [communityId], references: [id], onDelete: Cascade)
+    parentComment   CommunityPostComment?  @relation("CommunityCommentReplies", fields: [parentCommentId], references: [id], onDelete: Cascade)
+    parentCommentId String?
+    replies         CommunityPostComment[] @relation("CommunityCommentReplies")
+    likes           CommunityCommentLike[]
+
+    @@index([communityId])
+}
+
+model CommunityCommentLike {
+    id                 String               @default(uuid())
+    ownerId            String
+    communityCommentId String
+    createdAt          DateTime             @default(now())
+    communityComment   CommunityPostComment @relation(fields: [communityCommentId], references: [id], onDelete: Cascade)
+
+    @@unique([ownerId, communityCommentId])
+}
+
 enum GENDER {
     MALE
     FEMALE
@@ -259,4 +298,19 @@ enum DEVICE {
     DESKTOP
     MOBILE
     TABLET
+}
+
+enum CATEGORY {
+    ENTER
+    VLOGS
+    TUTORIALS
+    REVIEWS
+    INTERVIEWS
+    GAMING
+    MUSIC_VIDEOS
+    UNBOXINGS
+    DIY_CRAFTS
+    FITNESS
+    COMEDY_SKITS
+    TRAVEL
 }
