@@ -3,6 +3,7 @@ import userReducer from "@/store/slices/user-slice";
 import videosReducer from "@/store/slices/videos-slice";
 import videoPlayerReducer from "@/store/slices/video-player-slice";
 import watchHistoryReducer from "@/store/slices/watch-history-slice";
+import communityReducer from "@/store/slices/community-slice";
 
 export const makeStore = () => {
     return configureStore({
@@ -11,6 +12,7 @@ export const makeStore = () => {
             videos: videosReducer,
             videoPlayer: videoPlayerReducer,
             watchHistory: watchHistoryReducer,
+            community: communityReducer,
         },
     });
 };
