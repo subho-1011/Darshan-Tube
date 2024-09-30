@@ -19,6 +19,7 @@ import {
     Podcast,
     Clapperboard,
     Menu,
+    Users2Icon,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -34,9 +35,9 @@ const NavItems: {
         href: "/",
     },
     {
-        icon: <Compass />,
-        label: "Explore",
-        href: "/explore",
+        icon: <Users2Icon />,
+        label: "Community",
+        href: "/community",
         separator: true,
     },
     {

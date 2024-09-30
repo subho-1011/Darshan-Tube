@@ -1,5 +1,5 @@
 import { SortByOptions } from "@/constant";
-import { User, Video, VideoComment } from "@prisma/client";
+import { CommunityPost, User, Video, VideoComment } from "@prisma/client";
 
 export type TUser = User;
 
@@ -40,6 +40,13 @@ export type TVideoComment = VideoComment & {
     noOfReplies: number;
     owner: TBasicUser;
     replies: TVideoComment[];
+};
+
+export type TCommunityPost = CommunityPost & {
+    likes: number;
+    isLiked: boolean;
+    isOwner: boolean;
+    owner: TBasicUser;
 };
 
 export type SortType = (typeof SortByOptions)[number]["type"];

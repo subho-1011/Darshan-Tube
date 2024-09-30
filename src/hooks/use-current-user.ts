@@ -1,9 +1,9 @@
 "use client";
 
-import { useSession } from "next-auth/react";
+import { useAppSelector } from "@/lib/utils";
 
 export const useCurrentUser = () => {
-    const { data } = useSession();
+    const { user } = useAppSelector((state) => state.user);
 
-    return data?.user;
+    return user;
 };
