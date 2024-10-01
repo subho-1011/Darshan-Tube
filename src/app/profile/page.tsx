@@ -22,7 +22,7 @@ const ProfilePage: React.FC<ProfilePageProps> = () => {
                         <p>Welcome, {user.name}!</p>
                         {/* Add your profile details here */}
                         <ul className="space-y-3">
-                            <li>Email: {user.email}</li>
+                            <li>Username: {user.username}</li>
                             <li>Image: {user.image} </li>
                             <li>Name: {user.name}</li>
                         </ul>
