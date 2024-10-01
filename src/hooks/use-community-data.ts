@@ -1,19 +1,28 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
-import { getCommunityPosts } from "@/services/community.services";
+import { useAppDispatch, useAppSelector } from "@/lib/utils";
+import { fetchInitialCommunityPosts, loadMoreCommunityPosts } from "@/store/thunk-api/community.thunkapi";
+import { useEffect } from "react";
 
 const useCommunityData = () => {
-    // use react query
-    const { data, isLoading, error } = useQuery({
-        queryKey: ["community"],
-        queryFn: () => getCommunityPosts(),
-        staleTime: 1000 * 60 * 10,
-        refetchOnWindowFocus: false,
-        refetchOnReconnect: true,
-    });
+    const dispatch = useAppDispatch();
+    const { posts, currentPage, hasNoMorePosts, loading } = useAppSelector((state) => state.community);
 
-    return { communitys: data?.data || [], isLoading, error };
+    useEffect(() => {
+        dispatch(fetchInitialCommunityPosts({ page: 1, limit: 1 }));
+    }, []);
+
+    const loadMorePosts = () => {
+        dispatch(loadMoreCommunityPosts({ page: currentPage + 1, limit: 1 }));
+    };
+
+    return {
+        posts,
+        loadMorePosts,
+        hasNoMorePosts,
+        initialLoading: loading.fetchInitialPosts,
+        loadMoreLoading: loading.loadMorePosts,
+    };
 };
 
 export default useCommunityData;

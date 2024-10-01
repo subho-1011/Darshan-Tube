@@ -28,7 +28,7 @@ const CommunityPostForm: React.FC = () => {
     } = useCommunityPostForm();
 
     return (
-        <div className="relative flex size-full max-w-lg flex-col gap-2 overflow-hidden rounded-lg border p-4 backdrop-blur-md shadow-2xl">
+        <div className="relative flex size-full max-w-lg flex-col gap-2 overflow-hidden rounded-lg border p-4 backdrop-blur-md shadow-md">
             <div className="flex justify-between">
                 <div className="flex items-center space-x-2">
                     <UserAvatar username={user?.username} src={user?.image} name={user?.name} />
