@@ -21,10 +21,6 @@ export async function POST(req: Request, { params }: { params: { postId: string 
             return createErrorResponse("Community post not found :: Community", 404);
         }
 
-        if (existingPost.ownerId !== ownerId) {
-            return createErrorResponse("You are not authorized to like this community post :: Community", 403);
-        }
-
         const existingLike = await prismaDB.communityPostLike.findUnique({
             where: { ownerId_communityId: { ownerId, communityId: postId } },
         });
