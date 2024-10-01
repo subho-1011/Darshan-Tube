@@ -45,14 +45,12 @@ export async function GET(req: NextRequest, { params }: { params: { postId: stri
         const currentUserId = await getCurrentUserId();
 
         return createSuccessResponse(
-            {
-                comments: comments.map((comment) => ({
-                    ...comment,
-                    isLiked: comment.likes.some((like) => like.ownerId === currentUserId),
-                    likes: comment.likes.length,
-                    isOwner: comment.ownerId === currentUserId,
-                })),
-            },
+            comments.map((comment) => ({
+                ...comment,
+                isLiked: comment.likes.some((like) => like.ownerId === currentUserId),
+                likes: comment.likes.length,
+                isOwner: comment.ownerId === currentUserId,
+            })),
             "Community comments fetched successfully"
         );
     } catch (error) {

@@ -3,6 +3,45 @@ import { NextRequest } from "next/server";
 import { getCurrentUserId } from "@/data/users.data";
 import { createErrorResponse, createSuccessMessage, createSuccessResponse } from "@/utils";
 
+export async function GET(req: NextRequest, { params }: { params: { postId: string } }) {
+    try {
+        const { postId } = params;
+        if (!postId) {
+            return createErrorResponse("Community id is required :: Community", 400);
+        }
+
+        const existingPost = await prismaDB.communityPost.findUnique({
+            where: { id: postId },
+            include: {
+                owner: {
+                    select: { id: true, name: true, username: true, image: true },
+                },
+                communityPostLike: {
+                    select: { ownerId: true },
+                },
+            },
+        });
+
+        if (!existingPost) {
+            return createErrorResponse("Community post not found :: Community", 404);
+        }
+
+        const currentUserId = await getCurrentUserId();
+
+        return createSuccessResponse(
+            {
+                ...existingPost,
+                likes: existingPost.communityPostLike,
+                isLiked: existingPost.communityPostLike?.some((like) => like.ownerId === currentUserId),
+                isOwner: existingPost.ownerId === currentUserId,
+            },
+            "Community post retrieved successfully"
+        );
+    } catch (error) {
+        return createErrorResponse("Failed to get community post", 500, error);
+    }
+}
+
 export async function PATCH(req: NextRequest, { params }: { params: { postId: string } }) {
     try {
         const ownerId = await getCurrentUserId();

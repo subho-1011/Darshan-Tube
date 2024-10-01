@@ -23,8 +23,8 @@ type CommunityActions =
     | "editAExistingPost"
     | "deleteAExistingPost"
     | "toggleLikeOnAPost"
-    | "fetchAPostComment"
-    | "loadMoreAPostComment"
+    | "fetchAPostComments"
+    | "loadMoreAPostComments"
     | "createAPostComment"
     | "editAPostComment"
     | "toggleLikeOnAPostComment"
@@ -32,7 +32,7 @@ type CommunityActions =
 
 interface CommunityState {
     currentPage: number;
-    limit: number | string;
+    limit: number;
     posts: TCommunityPost[];
     hasNoMorePosts: boolean;
     commentsOnAPost: {
@@ -45,7 +45,7 @@ interface CommunityState {
 const initialState: CommunityState = {
     posts: [],
     currentPage: 1,
-    limit: 10,
+    limit: 1,
     commentsOnAPost: {},
     hasNoMorePosts: false,
     error: {
@@ -56,8 +56,8 @@ const initialState: CommunityState = {
         editAExistingPost: null,
         deleteAExistingPost: null,
         toggleLikeOnAPost: null,
-        fetchAPostComment: null,
-        loadMoreAPostComment: null,
+        fetchAPostComments: null,
+        loadMoreAPostComments: null,
         createAPostComment: null,
         editAPostComment: null,
         toggleLikeOnAPostComment: null,
@@ -71,8 +71,8 @@ const initialState: CommunityState = {
         editAExistingPost: false,
         deleteAExistingPost: false,
         toggleLikeOnAPost: false,
-        fetchAPostComment: false,
-        loadMoreAPostComment: false,
+        fetchAPostComments: false,
+        loadMoreAPostComments: false,
         createAPostComment: false,
         editAPostComment: false,
         toggleLikeOnAPostComment: false,
@@ -113,7 +113,7 @@ const communitySlice = createSlice({
                 state.loading.loadMorePosts = false;
                 state.posts = [...state.posts, ...action.payload.data];
                 state.currentPage += 1;
-                state.hasNoMorePosts = action.payload.data.length < parseInt(DEFAULT_LIMIT);
+                state.hasNoMorePosts = action.payload.data.length === 0;
                 state.error.loadMorePosts = null;
             })
             .addCase(loadMoreCommunityPosts.rejected, (state, action) => {
@@ -146,7 +146,7 @@ const communitySlice = createSlice({
                 const editedPost = action.payload.data;
                 if (state.posts) {
                     state.posts = state.posts.map((post) =>
-                        post.id === editedPost.id ? editedPost : post
+                        post.id === editedPost.id ? { ...post, text: editedPost.text } : post
                     );
                 }
                 state.error.editAExistingPost = null;
@@ -172,41 +172,46 @@ const communitySlice = createSlice({
             });
 
         builder
-            .addCase(toggleCommunityPostLikeThunk.pending, (state) => {
+            .addCase(toggleCommunityPostLikeThunk.pending, (state, action) => {
                 state.loading.toggleLikeOnAPost = true;
                 state.error.toggleLikeOnAPost = null;
-            })
-            .addCase(toggleCommunityPostLikeThunk.fulfilled, (state, action) => {
-                state.loading.toggleLikeOnAPost = false;
                 state.posts.map((post) => {
                     if (post.id === action.meta.arg.postId) {
                         post.isLiked = post.isLiked ? false : true;
-                        post.likes = post.isLiked ? post.likes - 1 : post.likes + 1;
+                        post.likes = post.isLiked ? post.likes + 1 : post.likes - 1;
                     }
                 });
+            })
+            .addCase(toggleCommunityPostLikeThunk.fulfilled, (state, action) => {
+                state.loading.toggleLikeOnAPost = false;
+
                 state.error.toggleLikeOnAPost = null;
             })
             .addCase(toggleCommunityPostLikeThunk.rejected, (state, action) => {
+                state.posts.map((post) => {
+                    if (post.id === action.meta.arg.postId) {
+                        post.isLiked = post.isLiked ? false : true;
+                        post.likes = post.isLiked ? post.likes + 1 : post.likes - 1;
+                    }
+                });
                 state.loading.toggleLikeOnAPost = false;
-                state.error.toggleLikeOnAPost =
-                    action.error.message || "Failed to toggle like on a post";
+                state.error.toggleLikeOnAPost = action.error.message || "Failed to toggle like on a post";
             });
 
         builder
             .addCase(getACommunityPostCommentsThunk.pending, (state) => {
-                state.loading.fetchAPostComment = true;
-                state.error.fetchAPostComment = null;
+                state.loading.fetchAPostComments = true;
+                state.error.fetchAPostComments = null;
             })
             .addCase(getACommunityPostCommentsThunk.fulfilled, (state, action) => {
-                state.loading.fetchAPostComment = false;
+                state.loading.fetchAPostComments = false;
                 const postId = action.meta.arg.postId;
                 state.commentsOnAPost[postId] = action.payload.data;
-                state.error.fetchAPostComment = null;
+                state.error.fetchAPostComments = null;
             })
             .addCase(getACommunityPostCommentsThunk.rejected, (state, action) => {
-                state.loading.fetchAPostComment = false;
-                state.error.fetchAPostComment =
-                    action.error.message || "Failed to fetch a post comment";
+                state.loading.fetchAPostComments = false;
+                state.error.fetchAPostComments = action.error.message || "Failed to fetch a post comment";
             });
 
         builder
@@ -217,16 +222,12 @@ const communitySlice = createSlice({
             .addCase(postCommentOnCommunityPostThunk.fulfilled, (state, action) => {
                 state.loading.createAPostComment = false;
                 const postId = action.meta.arg.postId;
-                state.commentsOnAPost[postId] = [
-                    action.payload.data,
-                    ...(state.commentsOnAPost[postId] || []),
-                ];
+                state.commentsOnAPost[postId] = [action.payload.data, ...(state.commentsOnAPost[postId] || [])];
                 state.error.createAPostComment = null;
             })
             .addCase(postCommentOnCommunityPostThunk.rejected, (state, action) => {
                 state.loading.createAPostComment = false;
-                state.error.createAPostComment =
-                    action.error.message || "Failed to post a post comment";
+                state.error.createAPostComment = action.error.message || "Failed to post a post comment";
             });
 
         builder
@@ -246,30 +247,39 @@ const communitySlice = createSlice({
             })
             .addCase(editCommunityPostCommentThunk.rejected, (state, action) => {
                 state.loading.editAPostComment = false;
-                state.error.editAPostComment =
-                    action.error.message || "Failed to edit a post comment";
+                state.error.editAPostComment = action.error.message || "Failed to edit a post comment";
             });
 
         builder
-            .addCase(toggleCommunityPostCommentLikeThunk.pending, (state) => {
+            .addCase(toggleCommunityPostCommentLikeThunk.pending, (state, action) => {
                 state.loading.toggleLikeOnAPostComment = true;
                 state.error.toggleLikeOnAPostComment = null;
-            })
-            .addCase(toggleCommunityPostCommentLikeThunk.fulfilled, (state, action) => {
-                state.loading.toggleLikeOnAPostComment = false;
                 const postId = action.meta.arg.postId;
                 if (state.commentsOnAPost[postId]) {
                     state.commentsOnAPost[postId] = state.commentsOnAPost[postId].map((comment) => {
                         if (comment.id === action.meta.arg.commentId) {
                             comment.isLiked = comment.isLiked ? false : true;
-                            comment.likes = comment.isLiked ? comment.likes - 1 : comment.likes + 1;
+                            comment.likes = comment.isLiked ? comment.likes + 1 : comment.likes - 1;
                         }
                         return comment;
                     });
                 }
+            })
+            .addCase(toggleCommunityPostCommentLikeThunk.fulfilled, (state) => {
+                state.loading.toggleLikeOnAPostComment = false;
                 state.error.toggleLikeOnAPostComment = null;
             })
             .addCase(toggleCommunityPostCommentLikeThunk.rejected, (state, action) => {
+                const postId = action.meta.arg.postId;
+                if (state.commentsOnAPost[postId]) {
+                    state.commentsOnAPost[postId] = state.commentsOnAPost[postId].map((comment) => {
+                        if (comment.id === action.meta.arg.commentId) {
+                            comment.isLiked = comment.isLiked ? false : true;
+                            comment.likes = comment.isLiked ? comment.likes + 1 : comment.likes - 1;
+                        }
+                        return comment;
+                    });
+                }
                 state.loading.toggleLikeOnAPostComment = false;
                 state.error.toggleLikeOnAPostComment =
                     action.error.message || "Failed to toggle like on a post comment";
@@ -292,8 +302,7 @@ const communitySlice = createSlice({
             })
             .addCase(deleteCommunityPostCommentThunk.rejected, (state, action) => {
                 state.loading.deleteAPostComment = false;
-                state.error.deleteAPostComment =
-                    action.error.message || "Failed to delete a post comment";
+                state.error.deleteAPostComment = action.error.message || "Failed to delete a post comment";
             });
     },
 });

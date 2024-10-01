@@ -39,6 +39,22 @@ const postNewCommunityPost = async (
     }
 };
 
+// get a community post
+const getACommunityPost = async (
+    postId: string
+): Promise<{
+    data: TCommunityPost;
+    message: string;
+}> => {
+    try {
+        const { data } = await axios.get(`/api/v1/community/${postId}`);
+
+        return data;
+    } catch (error) {
+        throw new Error(handleAxiosError(error));
+    }
+};
+
 // edit community post
 const editCommunityPost = async (
     postId: string,
@@ -178,6 +194,7 @@ const toggleCommunityPostCommentLike = async (
 export {
     getCommunityPosts,
     postNewCommunityPost,
+    getACommunityPost,
     editCommunityPost,
     deleteCommunityPost,
     toggleCommunityPostLike,
